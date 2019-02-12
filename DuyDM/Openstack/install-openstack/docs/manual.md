@@ -1659,7 +1659,7 @@ physical_interface_mappings = provider:ens256 (interface name provider)
 
 local_ip = 10.10.12.119(ip dải datavm compute)
 
-````
+```
 cp /etc/neutron/plugins/ml2/linuxbridge_agent.ini /etc/neutron/plugins/ml2/linuxbridge_agent.ini.org 
 rm -rf /etc/neutron/plugins/ml2/linuxbridge_agent.ini
 ```
