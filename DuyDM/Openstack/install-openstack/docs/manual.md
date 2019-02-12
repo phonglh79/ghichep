@@ -647,3 +647,451 @@ Sau khi tạo images, mặc định image sẽ được đưa vào thư mục /v
 
 ### 4.7. Cài đặt và cấu hình nova
 
++ Tạo database nova
+
+```
+mysql -u root -pWelcome123
+CREATE DATABASE nova_api;
+CREATE DATABASE nova;
+CREATE DATABASE nova_cell0;
+GRANT ALL PRIVILEGES ON nova_api.* TO 'nova'@'localhost' IDENTIFIED BY 'Welcome123';
+GRANT ALL PRIVILEGES ON nova_api.* TO 'nova'@'%' IDENTIFIED BY 'Welcome123';
+GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'localhost' IDENTIFIED BY 'Welcome123';
+GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'%' IDENTIFIED BY 'Welcome123';
+GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'localhost' IDENTIFIED BY 'Welcome123';
+GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'%' IDENTIFIED BY 'Welcome123';
+exit
+```
+
++ Tạo user và endpoint
+
+```
+openstack user create --domain default --password Welcome123 nova
+openstack role add --project service --user nova admin
+openstack service create --name nova --description "OpenStack Compute" compute
+```
+
+```
+openstack endpoint create --region RegionOne compute public http://10.10.10.118:8774/v2.1
+openstack endpoint create --region RegionOne compute admin http://10.10.10.118:8774/v2.1
+openstack endpoint create --region RegionOne compute internal http://10.10.10.118:8774/v2.1
+```
+
+```
+openstack user create --domain default --password Welcome123 placement
+openstack role add --project service --user placement admin
+openstack service create --name placement --description "Placement API" placement
+```
+
+```
+openstack endpoint create --region RegionOne placement public http://10.10.10.118:8778
+openstack endpoint create --region RegionOne placement admin http://10.10.10.118:8778
+openstack endpoint create --region RegionOne placement internal http://10.10.10.118:8778
+```
+
++ Tải packages
+
+```
+yum install -y openstack-nova-api openstack-nova-conductor openstack-nova-console openstack-nova-novncproxy openstack-nova-scheduler openstack-nova-placement-api
+```
+
++ Cấu hình nova
+
+```
+cp /etc/nova/nova.conf /etc/nova/nova.conf.org 
+rm -rf /etc/nova/nova.conf
+```
+
+```
+cat << EOF >> /etc/nova/nova.conf
+[DEFAULT]
+my_ip = 10.10.10.118
+enabled_apis = osapi_compute,metadata
+use_neutron = True
+osapi_compute_listen=10.10.10.118
+metadata_host=10.10.10.118
+metadata_listen=10.10.10.118
+metadata_listen_port=8775
+firewall_driver = nova.virt.firewall.NoopFirewallDriver
+transport_url = rabbit://openstack:Welcome123@10.10.10.118:5672
+[api]
+auth_strategy = keystone
+[api_database]
+connection = mysql+pymysql://nova:Welcome123@10.10.10.118/nova_api
+[barbican]
+[cache]
+backend = oslo_cache.memcache_pool
+enabled = true
+memcache_servers = 10.10.10.118:11211
+[cells]
+[cinder]
+[compute]
+[conductor]
+[console]
+[consoleauth]
+[cors]
+[crypto]
+[database]
+connection = mysql+pymysql://nova:Welcome123@10.10.10.118/nova
+[devices]
+[ephemeral_storage_encryption]
+[filter_scheduler]
+[glance]
+api_servers = http://10.10.10.118:9292
+[guestfs]
+[healthcheck]
+[hyperv]
+[ironic]
+[key_manager]
+[keystone]
+[keystone_authtoken]
+auth_url = http://10.10.10.118:5000/v3
+memcached_servers = 10.10.10.118:11211
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+project_name = service
+username = nova
+password = Welcome123
+[libvirt]
+[matchmaker_redis]
+[metrics]
+[mks]
+[neutron]
+[notifications]
+[osapi_v21]
+[oslo_concurrency]
+lock_path = /var/lib/nova/tmp
+[oslo_messaging_amqp]
+[oslo_messaging_kafka]
+[oslo_messaging_notifications]
+[oslo_messaging_rabbit]
+rabbit_ha_queues = true
+rabbit_retry_interval = 1
+rabbit_retry_backoff = 2
+amqp_durable_queues= true
+[oslo_messaging_zmq]
+[oslo_middleware]
+[oslo_policy]
+[pci]
+[placement]
+os_region_name = RegionOne
+project_domain_name = Default
+project_name = service
+auth_type = password
+user_domain_name = Default
+auth_url = http://10.10.10.118:5000/v3
+username = placement
+password = Welcome123
+[quota]
+[rdp]
+[remote_debug]
+[scheduler]
+discover_hosts_in_cells_interval = 300
+[serial_console]
+[service_user]
+[spice]
+[upgrade_levels]
+[vault]
+[vendordata_dynamic_auth]
+[vmware]
+[vnc]
+novncproxy_host=10.10.10.118
+enabled = true
+vncserver_listen = 10.10.10.118
+vncserver_proxyclient_address = 10.10.10.118
+novncproxy_base_url = http://10.10.10.118:6080/vnc_auto.html
+[workarounds]
+[wsgi]
+[xenserver]
+[xvp]
+EOF
+```
+
++ Thêm vào file 00-nova-placement-api.conf 
+
+```
+cat << 'EOF' >> /etc/httpd/conf.d/00-nova-placement-api.conf
+
+<Directory /usr/bin>
+   <IfVersion >= 2.4>
+      Require all granted
+   </IfVersion>
+   <IfVersion < 2.4>
+      Order allow,deny
+      Allow from all
+   </IfVersion>
+</Directory>
+EOF
+```
+
++ Cấu hình bind port cho nova-placement
+ 
+```
+sed -i -e 's/VirtualHost \*/VirtualHost 10.10.10.118/g' /etc/httpd/conf.d/00-nova-placement-api.conf
+sed -i -e 's/Listen 8778/Listen 10.10.10.118:8778/g' /etc/httpd/conf.d/00-nova-placement-api.conf
+```
+
++ Restart httpd
+
+```
+systemctl restart httpd
+```
+
++ Sync db
+ 
+```
+su -s /bin/sh -c "nova-manage api_db sync" nova
+su -s /bin/sh -c "nova-manage cell_v2 map_cell0" nova
+su -s /bin/sh -c "nova-manage cell_v2 create_cell --name=cell1 --verbose" nova
+su -s /bin/sh -c "nova-manage db sync" nova
+```
+
+Lưu ý: Bỏ qua cảnh báo `Warning`
+
++ Enable và start service
+
+```
+systemctl enable openstack-nova-api.service openstack-nova-scheduler.service openstack-nova-consoleauth.service openstack-nova-conductor.service openstack-nova-novncproxy.service
+systemctl start openstack-nova-api.service openstack-nova-scheduler.service openstack-nova-consoleauth.service openstack-nova-conductor.service openstack-nova-novncproxy.service
+```
+
++ Kiểm tra lại dịch vụ
+
+```
+openstack compute service list
+```
+
+![](../images/img-manual/Screenshot_945.png)
+
+### 4.8. Cài đặt và cấu hình neutron
+
++ Tạo database neutron
+ 
+```
+mysql -u root -pWelcome123
+CREATE DATABASE neutron;
+GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'localhost' IDENTIFIED BY 'Welcome123';
+GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'%' IDENTIFIED BY 'Welcome123';
+exit
+```
+
++ Tạo user, endpoint trên 1 node
+
+```
+openstack user create --domain default --password Welcome123 neutron
+openstack role add --project service --user neutron admin
+openstack service create --name neutron --description "OpenStack Networking" network
+```
+
+```
+openstack endpoint create --region RegionOne network public http://10.10.10.118:9696
+openstack endpoint create --region RegionOne network internal http://10.10.10.118:9696
+openstack endpoint create --region RegionOne network admin http://10.10.10.118:9696
+```
+
++ Cài packages
+
+```
+yum install openstack-neutron openstack-neutron-ml2 openstack-neutron-linuxbridge ebtables -y
+```
+
++ Cấu hình neutron
+ 
+Bài lab này sử dụng mô hình mạng provider (flat) sử dụng linuxbridge
+DHCP agent và metadata agent được chạy trên node compute
+
+```
+cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.org
+rm -rf /etc/neutron/neutron.conf
+```
+
+```
+cat << EOF >> /etc/neutron/neutron.conf
+[DEFAULT]
+bind_host = 10.10.10.118
+core_plugin = ml2
+service_plugins = router
+transport_url = rabbit://openstack:Welcome123@10.10.10.118:5672
+auth_strategy = keystone
+notify_nova_on_port_status_changes = true
+notify_nova_on_port_data_changes = true
+allow_overlapping_ips = True
+dhcp_agents_per_network = 2
+[agent]
+[cors]
+[database]
+connection = mysql+pymysql://neutron:Welcome123@10.10.10.118/neutron
+[keystone_authtoken]
+auth_uri = http://10.10.10.118:5000
+auth_url = http://10.10.10.118:35357
+memcached_servers = 10.10.10.118:11211
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+project_name = service
+username = neutron
+password = Welcome123
+[matchmaker_redis]
+[nova]
+auth_url = http://10.10.10.118:35357
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+region_name = RegionOne
+project_name = service
+username = nova
+password = Welcome123
+[oslo_concurrency]
+lock_path = /var/lib/neutron/tmp
+[oslo_messaging_amqp]
+[oslo_messaging_kafka]
+[oslo_messaging_notifications]
+[oslo_messaging_rabbit]
+rabbit_retry_interval = 1
+rabbit_retry_backoff = 2
+amqp_durable_queues = true
+rabbit_ha_queues = true
+[oslo_messaging_zmq]
+[oslo_middleware]
+[oslo_policy]
+[quotas]
+[ssl]
+EOF
+```
+
++ Cấu hình file ml2
+
+```
+cp /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugins/ml2/ml2_conf.ini.org
+rm -rf /etc/neutron/plugins/ml2/ml2_conf.ini
+```
+
+```
+cat << EOF >> /etc/neutron/plugins/ml2/ml2_conf.ini
+[DEFAULT]
+[l2pop]
+[ml2]
+type_drivers = flat,vlan,vxlan
+tenant_network_types = vxlan
+mechanism_drivers = linuxbridge,l2population
+extension_drivers = port_security
+[ml2_type_flat]
+[ml2_type_geneve]
+[ml2_type_gre]
+[ml2_type_vlan]
+network_vlan_ranges = provider
+[ml2_type_vxlan]
+vni_ranges = 1:1000
+[securitygroup]
+enable_ipset = True
+EOF
+```
+
++ Cấu hình file LB agent
+ 
+```
+cp /etc/neutron/plugins/ml2/linuxbridge_agent.ini /etc/neutron/plugins/ml2/linuxbridge_agent.ini.org 
+rm -rf /etc/neutron/plugins/ml2/linuxbridge_agent.ini
+```
+
+Lưu ý khi chạy đoạn ở dưới chú ý 2 tham số: 
+
+physical_interface_mappings = provider:ens256 (interface name provider)
+
+local_ip = 10.10.12.118(ip dải datavm controller)
+
+```
+cat << EOF >> /etc/neutron/plugins/ml2/linuxbridge_agent.ini
+[DEFAULT]
+[agent]
+[linux_bridge]
+physical_interface_mappings = provider:ens256
+[network_log]
+[securitygroup]
+enable_security_group = true
+firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
+[vxlan]
+enable_vxlan = true
+local_ip = 10.10.12.118
+l2_population = true
+EOF
+```
+
++ Cấu hình trên file l3 agent
+
+```
+cp /etc/neutron/l3_agent.ini /etc/neutron/l3_agent.ini.org
+rm -rf /etc/neutron/l3_agent.ini
+```
+
+```
+cat << EOF >> /etc/neutron/l3_agent.ini
+[DEFAULT]
+interface_driver = neutron.agent.linux.interface.BridgeInterfaceDriver
+[agent]
+[ovs]
+EOF
+```
+
++ Chỉnh sửa file /etc/nova/nova.conf 
+ 
+```
+vi /etc/nova/nova.conf
+``` 
+
+```
+[neutron]
+url = http://10.10.10.118:9696
+auth_url = http://10.10.10.118:35357
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+region_name = RegionOne
+project_name = service
+username = neutron
+password = Welcome123
+service_metadata_proxy = true
+metadata_proxy_shared_secret = Welcome123
+```
+
++ Restart lại service nova-api
+ 
+```
+systemctl restart openstack-nova-api.service
+```
+
++ Phân quyền file cấu hình
+	
+```
+chown -R root:neutron /etc/neutron/
+```
+
++ Tạo liên kết
+
+```
+ln -s /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugin.ini
+```
+
++ Sync db (bỏ qua các cảnh báo Warning)
+ 
+```
+su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron
+```
+
++ Enable và start dịch vụ 
+
+```
+systemctl restart openstack-nova-api.service openstack-nova-scheduler.service openstack-nova-consoleauth.service openstack-nova-conductor.service openstack-nova-novncproxy.service
+```
+
+```
+systemctl enable neutron-server.service neutron-linuxbridge-agent.service neutron-l3-agent.service
+systemctl start neutron-server.service neutron-linuxbridge-agent.service neutron-l3-agent.service
+```
+
+
+### 4.8. Cài đặt và cấu hình horizon
+
+
+
