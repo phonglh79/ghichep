@@ -6,6 +6,8 @@
 [2. IP Planning](#planning)<br>
 [3. Thiết lập ban đầu](#thietlap)<br>
 [4. Cài đặt node controller](#controller)<br>
+[5. Cài đặt node compute](#compute)<br>
+[6. Truy cập dashboard horizon](#dashboard)<br>
 
 <a name="mohinh"></a>
 ## 1. Mô hình triển khai
@@ -291,7 +293,7 @@ rabbitmqctl set_permissions openstack ".*" ".*" ".*"
 rabbitmqctl set_user_tags openstack administrator
 ```
 
-### 4.6. Cài đặt project keystone
+### 4.6. Cài đặt keystone
 
 + Tạo db
 
@@ -1352,3 +1354,399 @@ systemctl restart openstack-nova-api.service
 systemctl enable openstack-cinder-api.service openstack-cinder-volume.service openstack-cinder-scheduler.service
 systemctl restart openstack-cinder-api.service openstack-cinder-volume.service openstack-cinder-scheduler.service
 ```
+
+<a name="compute"></a>
+## 5. Cài đặt node compute
+
+### 5.1. Setup cơ bản
+
+**Cấu hình IP**
+
+```
+hostnamectl set-hostname controller
+
+echo "Setup IP ens160"
+nmcli c modify ens160 ipv4.addresses 10.10.10.119/24
+nmcli c modify ens160 ipv4.gateway 10.10.10.1
+nmcli c modify ens160 ipv4.dns 8.8.8.8
+nmcli c modify ens160 ipv4.method manual
+nmcli con mod ens160 connection.autoconnect yes
+
+echo "Setup IP ens192"
+nmcli c modify ens192 ipv4.addresses 10.10.13.119/24
+nmcli c modify ens192 ipv4.method manual
+nmcli con mod ens192 connection.autoconnect yes
+
+echo "Setup IP ens224"
+nmcli c modify ens224 ipv4.addresses 10.10.12.119/24
+nmcli c modify ens224 ipv4.method manual
+nmcli con mod ens224 connection.autoconnect yes
+
+echo "Setup IP ens256"
+nmcli c modify ens256 ipv4.addresses 10.10.11.119/24
+nmcli c modify ens256 ipv4.method manual
+nmcli con mod ens256 connection.autoconnect yes
+
+sudo systemctl disable firewalld
+sudo systemctl stop firewalld
+sudo systemctl disable NetworkManager
+sudo systemctl stop NetworkManager
+sudo systemctl enable network
+sudo systemctl start network
+sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
+sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+```
+
+![](../images/img-manual/Screenshot_947.png)
+
+**Cấu hình các mode sysctl**
+
+```
+echo 'net.ipv4.conf.all.arp_ignore = 1'  >> /etc/sysctl.conf
+echo 'net.ipv4.conf.all.arp_announce = 2'  >> /etc/sysctl.conf
+echo 'net.ipv4.conf.all.rp_filter = 2'  >> /etc/sysctl.conf
+echo 'net.netfilter.nf_conntrack_tcp_be_liberal = 1'  >> /etc/sysctl.conf
+```
+
+```
+cat << EOF >> /etc/sysctl.conf
+net.ipv4.ip_nonlocal_bind = 1
+net.ipv4.tcp_keepalive_time = 6
+net.ipv4.tcp_keepalive_intvl = 3
+net.ipv4.tcp_keepalive_probes = 6
+net.ipv4.ip_forward = 1
+net.ipv4.conf.all.rp_filter = 0
+net.ipv4.conf.default.rp_filter = 0
+EOF
+```
+```
+sysctl -p
+```
+
+**update**
+
+```
+yum -y update
+```
+
+**Khai bao file hosts**
+
+```
+echo "10.10.10.118 controller" >> /etc/hosts
+echo "10.10.10.119 compute01" >> /etc/hosts
+echo "10.10.10.117 compute02" >> /etc/hosts
+```
+
+**Cai dat cac goi can thiet **
+
+```
+yum -y install centos-release-openstack-queens
+yum -y install crudini wget vim
+yum -y install python-openstackclient openstack-selinux python2-PyMySQL
+```
+
+**Cài đặt và cấu hình NTP**
+
+```
+yum -y install chrony
+VIP_MGNT_IP='10.10.10.118'
+sed -i '/server/d' /etc/chrony.conf
+echo "server $VIP_MGNT_IP iburst" >> /etc/chrony.conf
+systemctl enable chronyd.service
+systemctl restart chronyd.service
+chronyc sources
+```
+
+![](../images/img-manual/Screenshot_948.png)
+
+**Chinh sua file /etc/yum.repos.d/CentOS-QEMU-EV.repo**
+
+```
+sed -i 's|baseurl=http:\/\/mirror.centos.org\/$contentdir\/$releasever\/virt\/$basearch\/kvm-common\/|baseurl=http:\/\/mirror.centos.org\/centos\/7\/virt\/x86_64\/kvm-common\/|g' /etc/yum.repos.d/CentOS-QEMU-EV.repo
+```
+
+### 5.2. Cài đặt nova
+
++ Cài đặt
+
+```
+yum install openstack-nova-compute libvirt-client -y
+```
+
++ Cấu hình nova
+
+```
+cp /etc/nova/nova.conf  /etc/nova/nova.conf.org
+rm -rf /etc/nova/nova.conf
+```
+
+```
+cat << EOF >> /etc/nova/nova.conf 
+[DEFAULT]
+enabled_apis = osapi_compute,metadata
+transport_url = rabbit://openstack:Welcome123@10.10.10.118:5672
+use_neutron = True
+firewall_driver = nova.virt.firewall.NoopFirewallDriver
+[api]
+auth_strategy = keystone
+[api_database]
+[barbican]
+[cache]
+[cells]
+[cinder]
+[compute]
+[conductor]
+[console]
+[consoleauth]
+[cors]
+[crypto]
+[database]
+[devices]
+[ephemeral_storage_encryption]
+[filter_scheduler]
+[glance]
+api_servers = http://10.10.10.118:9292
+[guestfs]
+[healthcheck]
+[hyperv]
+[ironic]
+[key_manager]
+[keystone]
+[keystone_authtoken]
+auth_url = http://10.10.10.118:5000/v3
+memcached_servers = 10.10.10.118:11211
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+project_name = service
+username = nova
+password = Welcome123
+[libvirt]
+virt_type = qemu
+[matchmaker_redis]
+[metrics]
+[mks]
+[neutron]
+url = http://10.10.10.118:9696
+auth_url = http://10.10.10.118:35357
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+region_name = RegionOne
+project_name = service
+username = neutron
+password = Welcome123
+[notifications]
+[osapi_v21]
+[oslo_concurrency]
+lock_path = /var/lib/nova/tmp
+[oslo_messaging_amqp]
+[oslo_messaging_kafka]
+[oslo_messaging_notifications]
+[oslo_messaging_rabbit]
+rabbit_ha_queues = true
+rabbit_retry_interval = 1
+rabbit_retry_backoff = 2
+amqp_durable_queues= true
+[oslo_messaging_zmq]
+[oslo_middleware]
+[oslo_policy]
+[pci]
+[placement]
+os_region_name = RegionOne
+project_domain_name = Default
+project_name = service
+auth_type = password
+user_domain_name = Default
+auth_url = http://10.10.10.118:5000/v3
+username = placement
+password = Welcome123
+[quota]
+[rdp]
+[remote_debug]
+[scheduler]
+discover_hosts_in_cells_interval = 300
+[serial_console]
+[service_user]
+[spice]
+[upgrade_levels]
+[vault]
+[vendordata_dynamic_auth]
+[vmware]
+[vnc]
+enabled = True
+server_listen = 0.0.0.0
+server_proxyclient_address = 10.10.10.119
+novncproxy_base_url = http://10.10.10.118:6080/vnc_auto.html
+[workarounds]
+[wsgi]
+[xenserver]
+[xvp]
+EOF
+```
+
++ Phan quyen
+
+```
+chown root:nova /etc/nova/nova.conf
+```
+
++ Enable, start service
+
+```
+systemctl enable libvirtd.service openstack-nova-compute.service
+systemctl restart libvirtd.service openstack-nova-compute.service
+```
+
+### 5.3. Cài đặt neutron
+
++ Cài đặt
+
+```
+yum install openstack-neutron openstack-neutron-ml2 openstack-neutron-linuxbridge ebtables -y
+```
+
++ Cấu hình neutron
+
+```
+cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.org 
+rm -rf /etc/neutron/neutron.conf
+```
+
+```
+cat << EOF >> /etc/neutron/neutron.conf
+[DEFAULT]
+transport_url = rabbit://openstack:Welcome123@10.10.10.118:5672
+auth_strategy = keystone
+[agent]
+[cors]
+[database]
+[keystone_authtoken]
+auth_uri = http://10.10.10.118:5000
+auth_url = http://10.10.10.118:35357
+memcached_servers = 10.10.10.118:11211
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+project_name = service
+username = neutron
+password = Welcome123
+[matchmaker_redis]
+[nova]
+[oslo_concurrency]
+lock_path = /var/lib/neutron/tmp
+[oslo_messaging_amqp]
+[oslo_messaging_kafka]
+[oslo_messaging_notifications]
+[oslo_messaging_rabbit]
+rabbit_ha_queues = true
+rabbit_retry_interval = 1
+rabbit_retry_backoff = 2
+amqp_durable_queues= true
+[oslo_messaging_zmq]
+[oslo_middleware]
+[oslo_policy]
+[quotas]
+[ssl]
+EOF
+```
+
++ Cấu hình file LB agent
+
+**Lưu ý khi chạy đoạn ở dưới chú ý 2 tham số:
+
+physical_interface_mappings = provider:ens256 (interface name provider)
+
+local_ip = 10.10.12.119(ip dải datavm compute)**
+
+````
+cp /etc/neutron/plugins/ml2/linuxbridge_agent.ini /etc/neutron/plugins/ml2/linuxbridge_agent.ini.org 
+rm -rf /etc/neutron/plugins/ml2/linuxbridge_agent.ini
+```
+
+```
+cat << EOF >> /etc/neutron/plugins/ml2/linuxbridge_agent.ini
+[DEFAULT]
+[agent]
+[linux_bridge]
+physical_interface_mappings = provider:ens256
+[network_log]
+[securitygroup]
+enable_security_group = true
+firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
+[vxlan]
+enable_vxlan = true
+local_ip = 10.10.12.119
+l2_population = true
+EOF
+```
+
++ Cấu hình dhcp agent
+
+```
+cp /etc/neutron/dhcp_agent.ini /etc/neutron/dhcp_agent.ini.org
+rm -rf /etc/neutron/dhcp_agent.ini
+```
+
+```
+cat << EOF >> /etc/neutron/dhcp_agent.ini
+[DEFAULT]
+interface_driver = linuxbridge
+dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq
+enable_isolated_metadata = true
+force_metadata = True
+[agent]
+[ovs]
+EOF
+```
+
++ Cấu hình metadata agent
+
+```
+cp /etc/neutron/metadata_agent.ini /etc/neutron/metadata_agent.ini.org 
+rm -rf /etc/neutron/metadata_agent.ini
+```
+
+```
+cat << EOF >> /etc/neutron/metadata_agent.ini
+[DEFAULT]
+nova_metadata_host = 10.10.10.118
+metadata_proxy_shared_secret = Welcome123
+[agent]
+[cache]
+EOF
+```
+
++ Phân quyền
+
+```
+chown root:neutron /etc/neutron/metadata_agent.ini /etc/neutron/neutron.conf /etc/neutron/dhcp_agent.ini /etc/neutron/plugins/ml2/linuxbridge_agent.ini
+```
+
+
++ Restart service nova
+
+```
+systemctl restart libvirtd.service openstack-nova-compute
+```
+
++ Enable, start  service nova
+
+```
+systemctl enable neutron-linuxbridge-agent.service neutron-dhcp-agent.service neutron-metadata-agent.service
+systemctl restart neutron-linuxbridge-agent.service neutron-dhcp-agent.service neutron-metadata-agent.service
+```
+
+Cấu hình tương tự Compute02
+
+<a name="dashboard"></a>
+## 6. Truy cập dashboard horizon
+
+```
+http://10.10.10.118/
+```
+![](../images/img-manual/Screenshot_949.png)
+
+Login thành công
+
+![](../images/img-manual/Screenshot_950.png)
