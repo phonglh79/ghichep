@@ -1093,5 +1093,262 @@ systemctl start neutron-server.service neutron-linuxbridge-agent.service neutron
 
 ### 4.8. Cài đặt và cấu hình horizon
 
++ Tải packages
 
+```
+yum install openstack-dashboard -y
+```
 
++ Tạo file direct
+ 
+```
+filehtml=/var/www/html/index.html
+touch $filehtml
+cat << EOF >> $filehtml
+<html>
+<head>
+<META HTTP-EQUIV="Refresh" Content="0.5; URL=http://10.10.10.118/dashboard">
+</head>
+<body>
+<center> <h1>Redirecting to OpenStack Dashboard</h1> </center>
+</body>
+</html>
+EOF
+```
+
++ Backup cấu hình
+ 
+```
+cp /etc/openstack-dashboard/local_settings /etc/openstack-dashboard/local_settings.org
+```
+
++ Thay đổi cấu hình trong file /etc/openstack-dashboard/local_settings
+ 
+```
+ALLOWED_HOSTS = ['*',]
+OPENSTACK_API_VERSIONS = {
+    "identity": 3,
+    "image": 2,
+    "volume": 2,
+}
+OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = True
+OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = 'Default'
+```
+
++ Lưu ý thêm SESSION_ENGINE vào trên dòng CACHE như bên dưới
+ 
+```
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+CACHES = {
+    'default': {
+         'BACKEND':'django.core.cache.backends.memcached.MemcachedCache',
+         'LOCATION': ['10.10.10.118:11211',],
+    }
+}
+OPENSTACK_HOST = "10.10.10.118"
+OPENSTACK_KEYSTONE_URL = "http://10.10.10.118:5000/v3"
+OPENSTACK_KEYSTONE_DEFAULT_ROLE = "user"
+```
+
++ Lưu ý: Nếu chỉ sử dụng provider, chỉnh sửa các thông số sau
+
+```
+OPENSTACK_NEUTRON_NETWORK = {
+    'enable_router': False,
+    'enable_quotas': False,
+    'enable_ipv6': False,
+    'enable_distributed_router': False,
+    'enable_ha_router': False,
+    'enable_fip_topology_check': False,
+}
+```
+
+```
+TIME_ZONE = "Asia/Ho_Chi_Minh"
+```
+
++ Thêm vào file /etc/httpd/conf.d/openstack-dashboard.conf
+ 
+```
+echo "WSGIApplicationGroup %{GLOBAL}" >> /etc/httpd/conf.d/openstack-dashboard.conf
+```
+
++ Restart lại httpd
+ 
+```
+systemctl restart httpd.service memcached.service
+```
+
+### 4.9. Cài đặt và cấu hình Cinder
+
+Mô hình sử dụng một phân vùng riêng để lưu các volume của máy ảo.
+
+![](../images/img-manual/Screenshot_946.png)
+
++ Tạo database cinder
+ 
+```
+mysql -u root -pWelcome123
+CREATE DATABASE cinder;
+GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'localhost' \
+  IDENTIFIED BY 'Welcome123';
+GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'%' \
+  IDENTIFIED BY 'Welcome123';  
+exit
+```
+
++ Tạo service, user và endpoint
+
+```
+openstack user create --domain default --password Welcome123 cinder
+openstack role add --project service --user cinder admin
+openstack service create --name cinderv2 --description "OpenStack Block Storage" volumev2
+openstack service create --name cinderv3 --description "OpenStack Block Storage" volumev3
+```
+ 
+``` 
+openstack endpoint create --region RegionOne volumev2 public http://10.10.10.118:8776/v2/%\(project_id\)s
+openstack endpoint create --region RegionOne volumev2 internal http://10.10.10.118:8776/v2/%\(project_id\)s
+openstack endpoint create --region RegionOne volumev2 admin http://10.10.10.118:8776/v2/%\(project_id\)s
+openstack endpoint create --region RegionOne volumev3 public http://10.10.10.118:8776/v3/%\(project_id\)s
+openstack endpoint create --region RegionOne volumev3 internal http://10.10.10.118:8776/v3/%\(project_id\)s
+openstack endpoint create --region RegionOne volumev3 admin http://10.10.10.118:8776/v3/%\(project_id\)s
+```
+
++ Tải package
+ 
+```
+yum install openstack-cinder targetcli python-keystone -y
+```
+
++ Cài đặt và cấu hình cinder volume với LVM
+ 
+```
+yum install -y lvm2
+```
+
++ Khởi động dịch vụ LVM và cho phép khởi động cùng hệ thống.
+ 
+```
+systemctl enable lvm2-lvmetad.service
+systemctl start lvm2-lvmetad.service
+```
+
++ Tạo LVM physical volume /dev/sdb
+ 
+```
+pvcreate /dev/sdb
+```
+
++ Tạo LVM volume group `cinder-volumes`
+ 
+```
+vgcreate cinder-volumes /dev/sdb
+```
+
++ Sửa file `/etc/lvm/lvm.conf`, để LVM chỉ scan ổ sdb cho block storage
+
+```
+devices {
+...
+filter = [ "a/sdb/", "r/.*/"]
+```
+
++ Sửa cấu hình cinder
+
+```
+cp /etc/cinder/cinder.conf /etc/cinder/cinder.conf.bak 
+rm -rf /etc/cinder/cinder.conf
+```
+
+```
+cat << EOF >> /etc/cinder/cinder.conf
+[DEFAULT]
+my_ip = 10.10.10.118
+transport_url = rabbit://openstack:Welcome123@10.10.10.118:5672
+auth_strategy = keystone
+osapi_volume_listen = 10.10.10.118
+enabled_backends = lvm
+[backend]
+[backend_defaults]
+[barbican]
+[brcd_fabric_example]
+[cisco_fabric_example]
+[coordination]
+[cors]
+[database]
+connection = mysql+pymysql://cinder:Welcome123@10.10.10.118/cinder
+[fc-zone-manager]
+[healthcheck]
+[key_manager]
+[keystone_authtoken]
+auth_uri = http://10.10.10.118:5000
+auth_url = http://10.10.10.118:35357
+memcached_servers = 10.10.10.118:11211
+auth_type = password
+project_domain_id = default
+user_domain_id = default
+project_name = service
+username = cinder
+password = Welcome123
+[matchmaker_redis]
+[nova]
+[oslo_concurrency]
+lock_path = /var/lib/cinder/tmp
+[oslo_messaging_amqp]
+[oslo_messaging_kafka]
+[oslo_messaging_notifications]
+[oslo_messaging_rabbit]
+rabbit_retry_interval = 1
+rabbit_retry_backoff = 2
+amqp_durable_queues = true
+rabbit_ha_queues = true
+[oslo_messaging_zmq]
+[oslo_middleware]
+[oslo_policy]
+[oslo_reports]
+[oslo_versionedobjects]
+[profiler]
+[service_user]
+[ssl]
+[vault]
+[lvm]
+volume_driver = cinder.volume.drivers.lvm.LVMVolumeDriver
+volume_group = cinder-volumes
+iscsi_protocol = iscsi
+iscsi_helper = lioadm
+volume_backend_name = lvm
+EOF
+```
+
++ Phân quyền file cấu hình
+ 
+```
+chown root:cinder /etc/cinder/cinder.conf
+```
+
++ Sync db
+
+```
+su -s /bin/sh -c "cinder-manage db sync" cinder
+```
+
++ Chỉnh sửa file /etc/nova/nova.conf
+
+```
+[cinder]
+os_region_name = RegionOne
+```
+
++ Restart dịch vụ nova api 
+
+```
+systemctl restart openstack-nova-api.service
+```
+
++ Enable va start dịch vụ
+
+```
+systemctl enable openstack-cinder-api.service openstack-cinder-volume.service openstack-cinder-scheduler.service
+systemctl restart openstack-cinder-api.service openstack-cinder-volume.service openstack-cinder-scheduler.service
+```
