@@ -1742,6 +1742,8 @@ Cấu hình tương tự Compute02
 <a name="dashboard"></a>
 ## 6. Truy cập dashboard horizon
 
+### 6.1. Login
+
 ```
 http://10.10.10.118/
 ```
@@ -1751,3 +1753,21 @@ http://10.10.10.118/
 Login thành công
 
 ![](../images/img-manual/Screenshot_950.png)
+
+### 6.2. Tạo flavor
+
+```
+openstack flavor create --id 0 --vcpus 1 --ram 64 --disk 0 m1.nano
+openstack flavor create --id 1 --vcpus 1 --ram 1024 --disk 0 m1.tiny
+openstack flavor create --id 2 --vcpus 2 --ram 2408 --disk 0 m1.small
+```
+
+![](../images/img-manual/Screenshot_951.png)
+
+
+### 6.3. Mở security group
+
+### 6.4. Tạo network
+
+### 6.5. Tạo VM
+
