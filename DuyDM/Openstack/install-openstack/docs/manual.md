@@ -1653,11 +1653,11 @@ EOF
 
 + Cấu hình file LB agent
 
-**Lưu ý khi chạy đoạn ở dưới chú ý 2 tham số:
+Lưu ý khi chạy đoạn ở dưới chú ý 2 tham số:
 
 physical_interface_mappings = provider:ens256 (interface name provider)
 
-local_ip = 10.10.12.119(ip dải datavm compute)**
+local_ip = 10.10.12.119(ip dải datavm compute)
 
 ````
 cp /etc/neutron/plugins/ml2/linuxbridge_agent.ini /etc/neutron/plugins/ml2/linuxbridge_agent.ini.org 
@@ -1745,6 +1745,7 @@ Cấu hình tương tự Compute02
 ```
 http://10.10.10.118/
 ```
+
 ![](../images/img-manual/Screenshot_949.png)
 
 Login thành công
