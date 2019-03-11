@@ -9,7 +9,7 @@ yum -y install https://centos7.iuscommunity.org/ius-release.rpm
 yum -y install python35u
 yum -y install python35u-pip
 yum install python35u-devel -y
-``
+```
 
 ```
 pip3.5 install python-openstackclient
