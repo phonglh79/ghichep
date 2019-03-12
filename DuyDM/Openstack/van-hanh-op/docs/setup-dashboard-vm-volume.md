@@ -41,6 +41,12 @@ port = 10051
 hostId = 'hosname_add_host_zabbix'
 ```
 
+Khai báo crontabs
+
+```
+0 * * * * /usr/local/bin/zabbix_sender.py
+```
+
 ## 2. Import template Openstack zabbix vào zabbix
 
 Tempalate `zbx_export_templates.xml` để ở thư mục scripts
