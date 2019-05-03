@@ -59,6 +59,15 @@ python3.5 /usr/local/bin/zabbix_sender.py
 
 Không báo lỗi là ok.
 
+**Lưu ý:** Nếu báo lỗi sau phải cài thêm gói `neutronclient`
+
+![](../images/img-zabbix-vm-volume/Screenshot_1344.png)
+
+```
+pip3.5 install python-neutronclient
+```
+
+
 ## 4. Kết quả
 
 ![](../images/img-zabbix-vm-volume/Screenshot_1039.png)
