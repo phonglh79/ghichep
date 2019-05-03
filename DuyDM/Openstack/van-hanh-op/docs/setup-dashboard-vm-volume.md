@@ -23,6 +23,12 @@ pip3.5 install py-zabbix
 
 ![](../images/img-zabbix-vm-volume/Screenshot_1037.png)
 
+Cài đặt zabbix sender
+
+```
+yum install zabbix-sender
+```
+
 - Lấy các file scripts python về để vào thư mục `/usr/local/bin/`
 
 + File scripts để ở thư mục scripts
