@@ -335,4 +335,9 @@ Kêt quả `health: HEALTH_OK`, `osd: 9 osds: 9 up (since 10m), 9 in (since 10m)
 
 ![](../images/install-ceph-nautilus/Screenshot_1566.png)
 
+```
+ceph osd tree
+```
+
+![](../images/install-ceph-nautilus/Screenshot_1567.png)
 
