@@ -166,4 +166,58 @@ ssh-copy-id root@ceph03
 
 ![](../images/install-ceph-nautilus/Screenshot_1547.png)
 
+**Tạo các thư mục `ceph-deploy` để thao tác cài đặt vận hành cluster**
+
+```
+mkdir /ceph-deploy && cd /ceph-deploy
+```
+
+![](../images/install-ceph-nautilus/Screenshot_1548.png)
+
+**Khởi tại file cấu hình cho cụm với node quản lý là `ceph01`**
+
+```
+ceph-deploy new ceph01
+```
+
+![](../images/install-ceph-nautilus/Screenshot_1549.png)
+
+**Kiểm tra lại thông tin folder `ceph-deploy`**
+
+![](../images/install-ceph-nautilus/Screenshot_1550.png)
+
+`ceph.conf` : file config được tự động khởi tạo
+
+`ceph-deploy-ceph.log` : file log của toàn bộ thao tác đối với việc sử dụng lệnh ceph-deploy.
+
+`ceph.mon.keyring` : Key monitoring được ceph sinh ra tự động để khởi tạo Cluster.
+
+- Bổ sung thêm vào file `ceph.conf`
+
+```
+cat << EOF >> /ceph-deploy/ceph.conf
+osd pool default size = 2
+osd pool default min size = 1
+osd crush chooseleaf type = 0
+osd pool default pg num = 128
+osd pool default pgp num = 128
+
+public network = 10.10.13.0/24
+cluster network = 10.10.14.0/24
+EOF
+```
+
++ `public network` : Đường trao đổi thông tin giữa các node Ceph và cũng là đường client kết nối vào.
+
++ `cluster network` : Đường đồng bộ dữ liệu.
+
+![](../images/install-ceph-nautilus/Screenshot_1551.png)
+
+**Cài đặt ceph trên toàn bộ các node ceph**
+
+```
+ceph-deploy install --release nautilus ceph01 ceph02 ceph03 
+```
+
+![](../images/install-ceph-nautilus/Screenshot_1552.png)
 
