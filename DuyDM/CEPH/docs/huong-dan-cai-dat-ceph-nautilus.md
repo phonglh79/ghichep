@@ -6,6 +6,8 @@
 [2. IP Planning](#planning)<br>
 [3. Thiết lập ban đầu](#thietlap)<br>
 [4. Cài đặt](#caidat)<br>
+[5. Khởi tạo MGR](#mgr)<br>
+[6. Khởi tạo OSD](#osd)<br>
 
 <a name="mohinh"></a>
 ## 1. Mô hình triển khai
@@ -237,5 +239,57 @@ ceph -v
 
 Đã cài đặt thành công CEPH trên node.
 
+**Khởi tạo cluster với các node mon (Monitor-quản lý) dựa trên file ceph.conf**
 
+```
+ceph-deploy mon create-initial
+```
+
+![](../images/install-ceph-nautilus/Screenshot_1555.png)
+
+**Sau khi thực hiện lệnh phía trên sẽ sinh thêm ra 05 file : ceph.bootstrap-mds.keyring, ceph.bootstrap-mgr.keyring, ceph.bootstrap-osd.keyring, ceph.client.admin.keyring và ceph.bootstrap-rgw.keyring. Quan sát bằng lệnh ll -alh**
+
+![](../images/install-ceph-nautilus/Screenshot_1556.png)
+
+**Để node ceph01 có thể thao tác với cluster chúng ta cần gán cho node ceph01 với quyền admin bằng cách bổ sung cho node này admin.keying**
+
+```
+ceph-deploy admin ceph01
+```
+
+![](../images/install-ceph-nautilus/Screenshot_1557.png)
+
+<a name="mgr"></a>
+## 5. Khởi tạo MGR
+
+Ceph-mgr là thành phần cài đặt cần khởi tạo từ bản nautilus, có thể cài đặt trên nhiều node hoạt động theo cơ chế Active-Passive.
+
+- Cài đặt ceph-mgr trên ceph01
+
+```
+ceph-deploy mgr create ceph01
+```
+
+![](../images/install-ceph-nautilus/Screenshot_1558.png)
+
+Kiểm tra
+
+![](../images/install-ceph-nautilus/Screenshot_1559.png)
+
+- Ceph-mgr hỗ trợ dashboard để quan sát trạng thái của cluster, Enable mgr dashboard trên host ceph01
+
+```
+ceph mgr module enable dashboard
+ceph dashboard create-self-signed-cert
+ceph dashboard set-login-credentials <username> <password>
+ceph mgr services
+```
+
+Truy cập vào mgr dashboard với username và password vừa đặt ở phía trên để kiểm tra
+https://<ip-ceph01>:8443
+
+<a name="osd"></a>
+## 6. Khởi tạo OSD
+
+### Tạo OSD thông qua ceph-deploy tại host ceph01
 
