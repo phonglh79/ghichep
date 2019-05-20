@@ -341,3 +341,6 @@ ceph osd tree
 
 ![](../images/install-ceph-nautilus/Screenshot_1567.png)
 
+
+
+
