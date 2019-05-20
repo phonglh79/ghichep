@@ -329,7 +329,7 @@ ceph -s
 
 ![](../images/install-ceph-nautilus/Screenshot_1565.png)
 
-Lưu ý: Thực hiện tương tự cho các OSD còn lại ở node CEPH01 và CEPH02, CEPH03.
+**Lưu ý**: Thực hiện tương tự cho các OSD còn lại ở node CEPH01 và CEPH02, CEPH03.
 
 Kêt quả `health: HEALTH_OK`, `osd: 9 osds: 9 up (since 10m), 9 in (since 10m)`.
 
