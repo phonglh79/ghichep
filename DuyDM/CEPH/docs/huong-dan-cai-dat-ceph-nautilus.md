@@ -28,6 +28,7 @@ Mô hình triển khai gồm 3 node CEPH mỗi node có 3 OSDs.
 
 ![](../images/install-ceph-nautilus/Screenshot_1538.png)
 
+<a name="thietlap"></a>
 ## 3. Thiết lập ban đầu
 
 **Update**
@@ -66,6 +67,12 @@ sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
 sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 ```
 
+![](../images/install-ceph-nautilus/Screenshot_1539.png)
+
+**Kiểm tra đủ disk trên các node CEPH**
+
+![](../images/install-ceph-nautilus/Screenshot_1540.png)
+
 **Bổ sung file hosts**
 
 Thực hiện trên 3 node CEPH.
@@ -77,5 +84,40 @@ cat << EOF >> /etc/hosts
 10.10.13.154 ceph03
 EOF
 ```
+
+
+**Cài đặt NTPD**
+
+```
+yum install chrony -y 
+```
+
+```
+systemctl start chronyd 
+systemctl enable chronyd
+systemctl restart chronyd 
+```
+ - Kiểm tra đồng bộ thời gian
+ 
+```
+chronyc sources -v
+```
+
+![](../images/install-ceph-nautilus/Screenshot_1541.png)
+
+**Kiểm tra kết nối**
+
+Thực hiện trên cả 3 node CEPH.
+
+```
+ping -c 10 ceph01
+```
+
+![](../images/install-ceph-nautilus/Screenshot_1542.png)
+
+<a name="caidat"></a>
+## 4. Cài đặt CEPH
+
+
 
 
