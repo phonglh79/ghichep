@@ -293,3 +293,42 @@ https://<ip-ceph01>:8443
 
 ### Tạo OSD thông qua ceph-deploy tại host ceph01
 
+- Trên ceph01, dùng ceph-deploy để partition ổ cứng OSD, thay ceph01 bằng hostname của host chứa OSD
+
+```
+ceph-deploy disk zap ceph01 /dev/sdb
+```
+
+![](../images/install-ceph-nautilus/Screenshot_1560.png)
+
+- Tạo OSD với ceph-deploy
+
+```
+ceph-deploy osd create --data /dev/sdb ceph01
+```
+
+![](../images/install-ceph-nautilus/Screenshot_1561.png)
+
+![](../images/install-ceph-nautilus/Screenshot_1562.png)
+
+- Kiểm tra osd vừa tạo bằng lệnh
+
+```
+ceph osd tree
+```
+
+![](../images/install-ceph-nautilus/Screenshot_1563.png)
+
+![](../images/install-ceph-nautilus/Screenshot_1564.png)
+
+- Check 
+
+```
+ceph -s
+```
+
+![](../images/install-ceph-nautilus/Screenshot_1565.png)
+
+
+
+
