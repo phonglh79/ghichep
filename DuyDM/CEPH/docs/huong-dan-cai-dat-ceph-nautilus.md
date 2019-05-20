@@ -118,6 +118,52 @@ ping -c 10 ceph01
 <a name="caidat"></a>
 ## 4. Cài đặt CEPH
 
+**Cài đặt ceph-deploy**
 
+```
+yum install -y wget 
+wget https://download.ceph.com/rpm-nautilus/el7/noarch/ceph-deploy-2.0.1-0.noarch.rpm --no-check-certificate
+rpm -ivh ceph-deploy-2.0.1-0.noarch.rpm
+```
+
+![](../images/install-ceph-nautilus/Screenshot_1543.png)
+
+**Cài đặt `python-setuptools` để `ceph-deploy` có thể hoạt động ổn định.**
+
+```
+curl https://bootstrap.pypa.io/ez_setup.py | python
+```
+
+![](../images/install-ceph-nautilus/Screenshot_1544.png)
+
+**Kiểm tra cài đặt**
+
+```
+ceph-deploy --version
+```
+
+Output : `2.0.1` là Ok.
+
+![](../images/install-ceph-nautilus/Screenshot_1545.png)
+
+**Tạo ssh key**
+
+```
+ssh-keygen
+```
+
+Enter khi có yêu cầu.
+
+![](../images/install-ceph-nautilus/Screenshot_1546.png)
+
+**Copy ssh key sang các node khác**
+
+```
+ssh-copy-id root@ceph01
+ssh-copy-id root@ceph02
+ssh-copy-id root@ceph03
+```
+
+![](../images/install-ceph-nautilus/Screenshot_1547.png)
 
 
