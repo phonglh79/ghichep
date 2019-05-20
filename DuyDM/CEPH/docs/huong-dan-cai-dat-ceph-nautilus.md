@@ -215,9 +215,27 @@ EOF
 
 **Cài đặt ceph trên toàn bộ các node ceph**
 
+**Lưu ý**: Nên sử dụng `boybu`, `tmux`, `screen` để cài đặt tránh hiện tượng mất kết nối khi đang cài đặt CEPH.
+
 ```
 ceph-deploy install --release nautilus ceph01 ceph02 ceph03 
 ```
 
 ![](../images/install-ceph-nautilus/Screenshot_1552.png)
+
+Đợi khoảng 30 phút -> 60 phút để cài xong trên cả 2 node CEPH.
+
+![](../images/install-ceph-nautilus/Screenshot_1553.png)
+
+**Kiểm tra sau khi cài đặt**
+
+```
+ceph -v 
+```
+
+![](../images/install-ceph-nautilus/Screenshot_1554.png)
+
+Đã cài đặt thành công CEPH trên node.
+
+
 
