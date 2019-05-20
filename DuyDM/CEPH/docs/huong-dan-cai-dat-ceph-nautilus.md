@@ -276,7 +276,7 @@ Kiểm tra
 
 ![](../images/install-ceph-nautilus/Screenshot_1559.png)
 
-- Ceph-mgr hỗ trợ dashboard để quan sát trạng thái của cluster, Enable mgr dashboard trên host ceph01
+- Ceph-mgr hỗ trợ dashboard để quan sát trạng thái của cluster, Enable mgr dashboard trên host ceph01.
 
 ```
 ceph mgr module enable dashboard
@@ -293,7 +293,7 @@ https://<ip-ceph01>:8443
 
 ### Tạo OSD thông qua ceph-deploy tại host ceph01
 
-- Trên ceph01, dùng ceph-deploy để partition ổ cứng OSD, thay ceph01 bằng hostname của host chứa OSD
+- Trên ceph01, dùng `ceph-deploy` để partition ổ cứng OSD, thay ceph01 bằng hostname của host chứa OSD.
 
 ```
 ceph-deploy disk zap ceph01 /dev/sdb
@@ -331,6 +331,8 @@ ceph -s
 
 Lưu ý: Thực hiện tương tự cho các OSD còn lại ở node CEPH01 và CEPH02, CEPH03.
 
+Kêt quả `health: HEALTH_OK`, `osd: 9 osds: 9 up (since 10m), 9 in (since 10m)`.
 
+![](../images/install-ceph-nautilus/Screenshot_1566.png)
 
 
