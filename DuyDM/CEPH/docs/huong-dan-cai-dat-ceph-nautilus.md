@@ -329,6 +329,8 @@ ceph -s
 
 ![](../images/install-ceph-nautilus/Screenshot_1565.png)
 
+Lưu ý: Thực hiện tương tự cho các OSD còn lại ở node CEPH01 và CEPH02, CEPH03.
+
 
 
 
