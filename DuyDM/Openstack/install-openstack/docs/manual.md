@@ -270,7 +270,9 @@ mysql_secure_installation
 
 + Cài đặt
 
+```
 yum -y install rabbitmq-server
+```
 
 + Cấu hình rabbitmq  
 
@@ -313,11 +315,13 @@ yum install openstack-keystone httpd mod_wsgi -y
 
 + Cấu hình bind port
 
+```
 cp /usr/share/keystone/wsgi-keystone.conf /etc/httpd/conf.d/
 sed -i -e 's/VirtualHost \*/VirtualHost 10.10.10.118/g' /etc/httpd/conf.d/wsgi-keystone.conf
 sed -i -e 's/Listen 5000/Listen 10.10.10.118:5000/g' /etc/httpd/conf.d/wsgi-keystone.conf
 sed -i -e 's/Listen 35357/Listen 10.10.10.118:35357/g' /etc/httpd/conf.d/wsgi-keystone.conf
 sed -i -e 's/^Listen.*/Listen 10.10.10.118:80/g' /etc/httpd/conf/httpd.conf
+```
 
 + Cấu hình keystone
  
