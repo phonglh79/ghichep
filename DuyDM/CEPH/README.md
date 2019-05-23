@@ -8,3 +8,7 @@
 
 - [2. Cài đặt CEPH phiên bản luminous](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/thuc-hanh/docs/2.huong-dan-cai-dat-ceph-luminous.md)
 
+- [3. Bài lab kết nối ceph client - ceph cluster](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/thuc-hanh/docs/3.%20client-linux-connect-ceph.md)
+
+
+
