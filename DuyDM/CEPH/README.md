@@ -2,6 +2,14 @@
 
 ### A, Lý thuyết
 
+- [1. Tổng quan về giải pháp lưu trữ CEPH](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/ly-thuyet/docs/1.tong-quan-ve-giai-phap-luu-tru-ceph.md)
+
+- [2. Kiểu lưu trữ dữ liệu trong CEPH](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/ly-thuyet/docs/2.kieu-luu-tru-du-lieu-trong-ceph.md)
+
+- [3. Kiến trức CEPH]()
+
+- [4. Service hoạt động trong CEPH]()
+
 ### B, LAB
 
 - [1. Cài đặt CEPH phiên bản nautilus](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/thuc-hanh/docs/1.huong-dan-cai-dat-ceph-nautilus.md)
