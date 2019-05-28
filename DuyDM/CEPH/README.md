@@ -6,7 +6,7 @@
 
 - [2. Kiểu lưu trữ dữ liệu trong CEPH](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/ly-thuyet/docs/2.kieu-luu-tru-du-lieu-trong-ceph.md)
 
-- [3. Kiến trức CEPH](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/ly-thuyet/docs/3.kien-truc-trong-ceph.md)
+- [3. Kiến trúc CEPH](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/ly-thuyet/docs/3.kien-truc-trong-ceph.md)
 
 ### B, LAB
 
