@@ -18,7 +18,7 @@
 
 - [4. Tập lệnh thao tác trên CEPH](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/thuc-hanh/docs/4.tap-lenh-thao-tac-tren-ceph.md)
 
-- [5. tích hợp CEPH - Openstack](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/thuc-hanh/docs/5.tich-hop-ceph-openstack.md)
+- [5. Tích hợp CEPH - Openstack](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/thuc-hanh/docs/5.tich-hop-ceph-openstack.md)
 
 
 
