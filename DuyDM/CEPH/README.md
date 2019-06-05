@@ -20,6 +20,6 @@
 
 - [5. Tích hợp CEPH - Openstack](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/thuc-hanh/docs/5.tich-hop-ceph-openstack.md)
 
-
+- [6. Cài đặt CEPH phiên bản luminous user](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/thuc-hanh/docs/6.huong-dan-cai-dat-ceph-luminous-user.md)
 
 
