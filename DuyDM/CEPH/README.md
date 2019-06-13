@@ -8,6 +8,8 @@
 
 - [3. Kiến trúc CEPH](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/ly-thuyet/docs/3.kien-truc-trong-ceph.md)
 
+- [4. Trạng thái của Placement group](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/ly-thuyet/docs/4.placement-group-states.md)
+
 ### B, LAB
 
 - [1. Cài đặt CEPH phiên bản nautilus](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/thuc-hanh/docs/1.huong-dan-cai-dat-ceph-nautilus.md)
