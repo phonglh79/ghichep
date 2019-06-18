@@ -36,8 +36,9 @@ chmod +x smart
 
 ##########################################
 
-echo "Test cd /usr/lib/check_mk_agent/plugins ./smart"
 echo "Test cd /usr/lib/check_mk_agent/local ./mk_inventory"
+echo "Test cd /usr/lib/check_mk_agent/plugins ./smart"
+
 
 
 
