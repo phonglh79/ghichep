@@ -31,11 +31,13 @@ sleep 3
 
 yum install smartmontools -y
 cd /usr/lib/check_mk_agent/plugins
-wget https://raw.githubusercontent.com/uncelvel/tutorial-ceph/master/docs/monitor/check_mk/plugins/smart
+wget https://raw.githubusercontent.com/domanhduy/ghichep/master/DuyDM/Check-MK/scripts/smart
 chmod +x smart
-./smart
 
 
-echo "Test cd /usr/lib/check_mk_agent/plugins, cd /usr/lib/check_mk_agent/local/mk_inventorys"
+
+echo "Test cd /usr/lib/check_mk_agent/plugins ./smart"
+
+echo "Test cd /usr/lib/check_mk_agent/local ./mk_inventory"
 
 
