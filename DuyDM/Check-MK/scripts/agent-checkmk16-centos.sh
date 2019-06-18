@@ -18,3 +18,6 @@ systemctl status xinetd
 
 
 echo "Cai dat agent check_mk Ok"
+
+
+
