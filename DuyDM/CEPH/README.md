@@ -26,4 +26,4 @@
 
 - [7. Add/remove một host trong ceph cluster](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/thuc-hanh/docs/7.remove-add-node-out-cluster.md)
 
-- [7. Chuyển OSD của node lỗi sang node mới](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/thuc-hanh/docs/8.move-osd-node-fail-to-new-node.md)
+- [8. Chuyển OSD của node lỗi sang node mới](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/thuc-hanh/docs/8.move-osd-node-fail-to-new-node.md)
