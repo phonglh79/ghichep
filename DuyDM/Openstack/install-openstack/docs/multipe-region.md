@@ -22,3 +22,7 @@ Hình ảnh ở dưới thể hiện phân hoạch địa chỉ IP và cấu hì
 <a name="setup"></a>
 ## 3. Cài đặt 2 cụm Openstack độc lập
 
+Có thể lựa chọn cài manual [tại đây](https://github.com/domanhduy/ghichep/blob/master/DuyDM/Openstack/install-openstack/docs/manual.md)
+
+hoặc có thể cài theo script [tại đây](https://github.com/domanhduy/openstack-tools/blob/master/docs/openstack-queens-CentOS7-scripts.md)
+
