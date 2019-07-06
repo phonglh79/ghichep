@@ -264,7 +264,7 @@ Chỉnh sửa os_region_name về RegionTwo
 
 Mục [keystone_authtoken]:
 
-`auth_uri`, `auth_url` về CTL10.10.10.117
+`auth_url` về CTL10.10.10.117
 
 region_name về RegionTwo
 
@@ -321,7 +321,6 @@ api_servers = http://10.10.10.119:9292
 [key_manager]
 [keystone]
 [keystone_authtoken]
-auth_uri = http://10.10.10.117:5000
 auth_url = http://10.10.10.117:5000
 memcached_servers = 10.10.10.119:11211
 auth_type = password
@@ -341,12 +340,12 @@ auth_url = http://10.10.10.117:5000
 auth_type = password
 project_domain_name = Default
 user_domain_name = Default
+region_name = RegionTwo
 project_name = service
 username = neutron
 password = Welcome123
 service_metadata_proxy = True
 metadata_proxy_shared_secret = Welcome123
-region_name = RegionTwo
 [notifications]
 [osapi_v21]
 [oslo_concurrency]
@@ -369,7 +368,6 @@ user_domain_name = Default
 auth_url = http://10.10.10.117:5000/v3
 username = placement
 password = Welcome123
-region_name = RegionTwo
 [quota]
 [rdp]
 [remote_debug]
@@ -470,7 +468,6 @@ api_servers = http://10.10.10.119:9292
 [key_manager]
 [keystone]
 [keystone_authtoken]
-auth_uri = http://10.10.10.117:5000
 auth_url = http://10.10.10.117:5000
 memcached_servers = 10.10.10.119:11211
 auth_type = password
@@ -563,6 +560,18 @@ Nếu xuất hiện log lỗi
 ```
 Nếu xuất hiện, kiểm tra config tại nova controller và nova compute, sau đó khởi động os CTL 10.119 và com 10.120 thuộc RegionTwo (nguyên nhân do database hoặc cache)
 ```
+
+![](../images/img-multipe-region/Screenshot_132.png)
+
+
+Thực hiện trên node CLT của region 1
+
+```
+openstack compute service list --os-region-name RegionTwo
+```
+
+![](../images/img-multipe-region/Screenshot_133.png)
+
 
 
 
