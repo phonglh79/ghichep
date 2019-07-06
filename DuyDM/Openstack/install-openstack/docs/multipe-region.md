@@ -112,6 +112,7 @@ openstack endpoint list --region RegionTwo
 
 ### 4.2. Tạo admin openstack resource trên cho cả 2 node CTL 10.117 và 10.119
 
+```
 cat << EOF >> admin-openrc-r2
 export OS_REGION_NAME=RegionTwo
 export OS_PROJECT_DOMAIN_NAME=Default
@@ -124,7 +125,7 @@ export OS_IDENTITY_API_VERSION=3
 export OS_IMAGE_API_VERSION=2
 export PS1='[\u@\h \W(admin-openrc)]\$ '
 EOF
-
+```
 
 ### 4.3. Thực hiện config trên node CTL ở Region 2 10.10.10.119 để chỉnh sửa xác thực keystone node CLT RegionOne 10.10.10.117
 
@@ -281,6 +282,7 @@ os_region_name về RegionTwo
 auth_url về CTL 10.10.10.117
 
 ```
+[root@controller1 ~]# cat /etc/nova/nova.conf | egrep -v "^#|^$"
 [DEFAULT]
 enabled_apis = osapi_compute,metadata
 transport_url = rabbit://openstack:Welcome123@10.10.10.119
@@ -321,7 +323,7 @@ api_servers = http://10.10.10.119:9292
 [key_manager]
 [keystone]
 [keystone_authtoken]
-auth_url = http://10.10.10.117:5000
+auth_url = http://10.10.10.117:35357
 memcached_servers = 10.10.10.119:11211
 auth_type = password
 project_domain_name = Default
@@ -484,7 +486,7 @@ virt_type = qemu
 [mks]
 [neutron]
 url = http://10.10.10.119:9696
-auth_url = http://10.10.10.117:5000
+auth_url = http://10.10.10.117:35357
 auth_type = password
 project_domain_name = Default
 user_domain_name = Default
@@ -572,6 +574,240 @@ openstack compute service list --os-region-name RegionTwo
 
 ![](../images/img-multipe-region/Screenshot_133.png)
 
+**4.3.3. Service cinder**
+
+Thực hiện trên node CTL region 2
+
+Với dịch vụ Cinder, ta sẽ chỉnh sửa các mục [keystone_authtoken] tại /etc/cinder/cinder.conf
+
+Mục [keystone_authtoken]
+
+Sửa auth_uri, auth_url về CTL 10.10.10.1117
+region_name về RegionTwo
+
+```
+[DEFAULT]
+rpc_backend = rabbit
+auth_strategy = keystone
+my_ip = 10.10.10.119
+control_exchange = cinder
+osapi_volume_listen = $my_ip
+glance_api_servers = http://10.10.10.119:9292
+enabled_backends = lvm
+[backend]
+[backend_defaults]
+[barbican]
+[brcd_fabric_example]
+[cisco_fabric_example]
+[coordination]
+[cors]
+[database]
+connection = mysql+pymysql://cinder:Welcome123@10.10.10.119/cinder
+[fc-zone-manager]
+[healthcheck]
+[key_manager]
+[keystone_authtoken]
+auth_uri = http://10.10.10.117:5000
+auth_url = http://10.10.10.117:5000
+memcached_servers = 10.10.10.119:11211
+auth_type = password
+project_domain_name = Default
+user_domain_name = Default
+project_name = service
+username = cinder
+password = Welcome123
+region_name = RegionTwo
+[matchmaker_redis]
+[nova]
+[oslo_concurrency]
+lock_path = /var/lib/cinder/tmp
+[oslo_messaging_amqp]
+[oslo_messaging_kafka]
+[oslo_messaging_notifications]
+driver = messagingv2
+[oslo_messaging_rabbit]
+rabbit_host = 10.10.10.119
+rabbit_port = 5672
+rabbit_userid = openstack
+rabbit_password = Welcome123
+[oslo_messaging_zmq]
+[oslo_middleware]
+[oslo_policy]
+[oslo_reports]
+[oslo_versionedobjects]
+[profiler]
+[service_user]
+[ssl]
+[vault]
+[lvm]
+volume_driver = cinder.volume.drivers.lvm.LVMVolumeDriver
+volume_group = cinder-volumes
+iscsi_protocol = iscsi
+iscsi_helper = lioadm
+```
+
+- Restart service cinder
+
+```
+systemctl restart openstack-cinder-api.service openstack-cinder-volume.service openstack-cinder-scheduler.service
+```
+
+- Kiểm tra từ node CTL region 1
+
+```
+openstack volume service list --os-region-name RegionTwo
+```
+
+![](../images/img-multipe-region/Screenshot_134.png)
+
+
+**4.3.4. Service neutron**
+
+Với Neutron, ta cần chỉnh sửa lại settings trên CTL 10.10.10.119, COM1 10.10.10.120
+
+Thực hiện trên CTL 10.10.10.119
+
+Chỉnh sửa các mục [keystone_authtoken], [nova] tại /etc/neutron/neutron.conf
+
+Mục [keystone_authtoken]
+
+Sửa auth_uri, auth_url về CTL 10.10.10.117
+region_name về RegionTwo
+Mục [nova]
+
+auth_url về CTL 10.10.10.117
+region_name = RegionTwo
+
+```
+[DEFAULT]
+core_plugin = ml2
+service_plugins = router
+auth_strategy = keystone
+transport_url = rabbit://openstack:Welcome123@10.10.10.119
+notify_nova_on_port_status_changes = True
+notify_nova_on_port_data_changes = True
+allow_overlapping_ips = True
+dhcp_agents_per_network = 2
+nova_metadata_ip = 10.10.10.119
+metadata_proxy_shared_secret = Welcome123
+[agent]
+[cors]
+[database]
+connection = mysql+pymysql://neutron:Welcome123@10.10.10.119/neutron
+[keystone_authtoken]
+auth_uri = http://10.10.10.117:5000
+auth_url = http://10.10.10.117:5000
+memcached_servers = 10.10.10.119:11211
+auth_type = password
+project_domain_name = Default
+user_domain_name = Default
+project_name = service
+username = neutron
+password = Welcome123
+region_name = RegionTwo
+[matchmaker_redis]
+[nova]
+auth_url = http://10.10.10.117:5000
+auth_type = password
+project_domain_name = Default
+user_domain_name = Default
+region_name = RegionTwo
+project_name = service
+username = nova
+password = Welcome123
+[oslo_concurrency]
+lock_path = /var/lib/neutron/tmp
+[oslo_messaging_amqp]
+[oslo_messaging_kafka]
+[oslo_messaging_notifications]
+driver = messagingv2
+[oslo_messaging_rabbit]
+[oslo_messaging_zmq]
+[oslo_middleware]
+[oslo_policy]
+[quotas]
+[ssl]
+[linux_bridge]
+physical_interface_mappings = provider:eth3
+[vxlan]
+enable_vxlan = False
+[securitygroup]
+enable_security_group = True
+firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
+```
+
+
+- Restart lại service
+
+```
+systemctl restart openstack-nova-api.service openstack-nova-scheduler.service openstack-nova-consoleauth.service openstack-nova-conductor.service openstack-nova-novncproxy.service
+systemctl restart neutron-server.service neutron-linuxbridge-agent.service neutron-l3-agent.service
+```
+
+- Thực hiện trên COM1 10.10.10.120
+
+Chỉnh sửa lại các mục [keystone_authtoken] tại /etc/neutron/neutron.conf
+
+Sửa auth_uri, auth_url về CTL 10.10.10.117
+region_name về RegionTwo
+
+
+```
+[DEFAULT]
+auth_strategy = keystone
+core_plugin = ml2
+transport_url = rabbit://openstack:Welcome123@10.10.10.119
+notify_nova_on_port_status_changes = true
+notify_nova_on_port_data_changes = true
+[agent]
+[cors]
+[database]
+[keystone_authtoken]
+auth_uri = http://10.10.10.117:5000
+auth_url = http://10.10.10.117:5000
+memcached_servers = 10.10.10.119:11211
+auth_type = password
+project_domain_name = Default
+user_domain_name = Default
+project_name = service
+username = neutron
+password = Welcome123
+region_name = RegionTwo
+[matchmaker_redis]
+[nova]
+[oslo_concurrency]
+lock_path = /var/lib/neutron/tmp
+[oslo_messaging_amqp]
+[oslo_messaging_kafka]
+[oslo_messaging_notifications]
+driver = messagingv2
+[oslo_messaging_rabbit]
+rabbit_host = 10.10.10.119
+rabbit_port = 5672
+rabbit_userid = openstack
+rabbit_password = Welcome123
+[oslo_messaging_zmq]
+[oslo_middleware]
+[oslo_policy]
+[quotas]
+[ssl]
+```
+
+- Restart lại service
+
+```
+systemctl restart neutron-linuxbridge-agent.service neutron-dhcp-agent.service neutron-metadata-agent.service
+```
+
+- Check ở node CLL 1 region 1
+
+```
+openstack network agent list --os-region-name RegionTwo
+```
+
+![](../images/img-multipe-region/Screenshot_135.png)
+
+## 4.4. Tạo máy test trên 2 region
 
 
 
