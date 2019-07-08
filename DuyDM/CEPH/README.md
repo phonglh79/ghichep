@@ -9,6 +9,7 @@
 - [3. Kiến trúc CEPH](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/ly-thuyet/docs/3.kien-truc-trong-ceph.md)
 
 - [4. Trạng thái của Placement group](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/ly-thuyet/docs/4.placement-group-states.md)
+- [5. Crushmap trong CEPH]()
 
 ### B, LAB
 
