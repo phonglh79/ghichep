@@ -261,25 +261,30 @@ Chỉnh sửa lại mục các mục `[keystone_authtoken]`, `[neutron]`, `[plac
 
 Mục [cinder]:
 
+```
 Chỉnh sửa os_region_name về RegionTwo
+```
 
 Mục [keystone_authtoken]:
 
-`auth_url` về CTL10.10.10.117
-
+```
+auth_url về CTL10.10.10.117
 region_name về RegionTwo
+```
 
 Mục [neutron]:
 
+```
 Chỉnh sửa `auth_url` về CTL 10.10.10.117
-
 region_name về RegionTwo
+```
 
 Mục [placement]
 
+```
 os_region_name về RegionTwo
-
 auth_url về CTL 10.10.10.117
+```
 
 ```
 [root@controller1 ~]# cat /etc/nova/nova.conf | egrep -v "^#|^$"
@@ -582,8 +587,10 @@ Với dịch vụ Cinder, ta sẽ chỉnh sửa các mục [keystone_authtoken] 
 
 Mục [keystone_authtoken]
 
+```
 Sửa auth_uri, auth_url về CTL 10.10.10.1117
 region_name về RegionTwo
+```
 
 ```
 [DEFAULT]
@@ -671,12 +678,17 @@ Chỉnh sửa các mục [keystone_authtoken], [nova] tại /etc/neutron/neutron
 
 Mục [keystone_authtoken]
 
+```
 Sửa auth_uri, auth_url về CTL 10.10.10.117
 region_name về RegionTwo
+```
+
 Mục [nova]
 
+```
 auth_url về CTL 10.10.10.117
 region_name = RegionTwo
+```
 
 ```
 [DEFAULT]
@@ -746,11 +758,12 @@ systemctl restart neutron-server.service neutron-linuxbridge-agent.service neutr
 
 - Thực hiện trên COM1 10.10.10.120
 
-Chỉnh sửa lại các mục [keystone_authtoken] tại /etc/neutron/neutron.conf
+Chỉnh sửa lại các mục `[keystone_authtoken]` tại /etc/neutron/neutron.conf
 
+```
 Sửa auth_uri, auth_url về CTL 10.10.10.117
 region_name về RegionTwo
-
+```
 
 ```
 [DEFAULT]
@@ -808,6 +821,10 @@ openstack network agent list --os-region-name RegionTwo
 ![](../images/img-multipe-region/Screenshot_135.png)
 
 ## 4.4. Tạo máy test trên 2 region
+
+![](../images/img-multipe-region/Screenshot_137.png)
+
+## 4.5. Một số lỗi 
 
 
 
