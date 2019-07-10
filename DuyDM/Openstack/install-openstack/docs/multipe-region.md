@@ -826,6 +826,50 @@ openstack network agent list --os-region-name RegionTwo
 
 ## 4.5. Một số lỗi 
 
+- Xuất hiện lỗi tại Node Compute
+
+```
+[root@compute01 ~]# cat /var/log/nova/nova-compute.log | grep ERROR
+
+2019-04-11 11:40:05.363 15299 ERROR nova.compute.manager [instance: 5350c69f-24de-4345-9556-0cc92faa3ef2] BuildAbortException: Build of instance 5350c69f-24de-4345-9556-0cc92faa3ef2 aborted: Invalid input received: Invalid image identifier or unable to access requested image. (HTTP 400) (Request-ID: req-1e69aa25-4f63-477d-a8a5-678ebf1bb869)
+```
+
+Kiểm tra lại cấu hình cinder:
+
+Tại Controller, có thể thiếu `glance_api_servers` section `[glance_api_servers]` `(/etc/cinder/cinder.conf)`
+
+Tại Compute, có thể thiếu `os_region_name` tại section `[cinder]` `(/etc/nova/nova.conf)`
+
+- Nếu xuất hiện lỗi tại Node Compute
+
+```
+2019-04-11 10:58:40.625 14019 ERROR nova.compute.manager [instance: 66eef324-058d-443e-afa6-8893f183a7db] PortBindingFailed: Binding failed for port 68e62053-fed2-4bd8-b3a8-0755012774ad, please check neutron logs for more information.
+```
+
+Kiểm tra lại cấu hình neutron và service
+
+## 4.6. Redirect dashboard horizon cụm region 2 về horizon cụm region 1
+
+Thao tác trên server horizon region `10.10.10.119`
+
+```
+vi /var/www/html/index.html
+```
+
+![](../images/img-multipe-region/Screenshot_138.png)
+
+Restart lại httpd
+
+```
+systemctl restart httpd.service
+```
+
+
+
+
+
+
+
 
 
 
