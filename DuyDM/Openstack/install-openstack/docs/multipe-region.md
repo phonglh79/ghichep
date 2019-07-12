@@ -127,6 +127,20 @@ export PS1='[\u@\h \W(admin-openrc)]\$ '
 EOF
 ```
 
+hoặc
+
+```
+export OS_REGION_NAME=RegionTwo
+export OS_PROJECT_DOMAIN_NAME=Default
+export OS_USER_DOMAIN_NAME=Default
+export OS_PROJECT_NAME=admin
+export OS_USERNAME=admin
+export OS_PASSWORD=Welcome123
+export OS_AUTH_URL=http://10.10.10.117:5000/v3
+export OS_IDENTITY_API_VERSION=3
+export OS_IMAGE_API_VERSION=2
+```
+
 ### 4.3. Thực hiện config trên node CTL ở Region 2 10.10.10.119 để chỉnh sửa xác thực keystone node CLT RegionOne 10.10.10.117
 
 **4.3.1. Service glance**
