@@ -862,6 +862,18 @@ Tại Compute, có thể thiếu `os_region_name` tại section `[cinder]` `(/et
 
 Kiểm tra lại cấu hình neutron và service
 
+- Lỗi khi tạo máy ảo
+
+```
+2019-07-12 14:47:49.200 1296 ERROR nova.compute.manager ResourceProviderCreationFailed: Failed to create resource provider compute1
+```
+
+Chưa config mục [placement]:
+
+Chỉnh sửa `auth_url` về CTL 10.10.10.117
+
+Sửa `os_region_name` về `RegionTwo`
+
 ## 4.6. Redirect dashboard horizon cụm region 2 về horizon cụm region 1
 
 Thao tác trên server horizon region `10.10.10.119`
