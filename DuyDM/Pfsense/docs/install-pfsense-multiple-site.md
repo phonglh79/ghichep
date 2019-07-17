@@ -41,9 +41,7 @@ Thực hiện cài đặt 2 cụm pssense với các VLAN đã được quy ho�
 
 ![](../images/img-pfsense-multiple-site/Screenshot_159.png)
 
-```
-exit
-```
+Lựa chọn `No`
 
 ![](../images/img-pfsense-multiple-site/Screenshot_160.png)
 
@@ -90,6 +88,8 @@ Tạm thời để mặc định và click `Next`
 Chờ quá trình update hoàn tất
 
 - Add tất cả các VLAN còn lại trên giao diện pfsense theo mô hình
+
+![](../images/img-pfsense-multiple-site/Screenshot_175.png)
 
 
 
