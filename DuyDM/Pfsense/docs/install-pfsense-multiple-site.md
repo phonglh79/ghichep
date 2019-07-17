@@ -15,7 +15,7 @@
 
 Thực hiện cài đặt 2 cụm pssense với các VLAN đã được quy hoạch
 
-### 3.1. Cài đặ pfsense site 1
+### 3.1. Cài đặt pfsense
 
 - Chuẩn bị VM
 
@@ -90,6 +90,39 @@ Chờ quá trình update hoàn tất
 - Add tất cả các VLAN còn lại trên giao diện pfsense theo mô hình
 
 ![](../images/img-pfsense-multiple-site/Screenshot_175.png)
+
+- Thực hiện cài ở 2 site giống nhau
+
+## Bước 2: Cài đặt OpenVPN để client connect tới theo mô hình truyền thống.
+
+## Bước 3: Cấu hình site-to-site
+
+
+Một số lưu ý:
+
+Rule phải mở ở 2 site giống nhau
+
++ WAN
+
+![](../images/img-pfsense-multiple-site/Screenshot_178.png)
+
++ VLAN
+
+![](../images/img-pfsense-multiple-site/Screenshot_179.png)
+
++ VPN
+
+![](../images/img-pfsense-multiple-site/Screenshot_180.png)
+
++ IPsec
+
+![](../images/img-pfsense-multiple-site/Screenshot_181.png)
+
++ OpenVPN
+
+![](../images/img-pfsense-multiple-site/Screenshot_182.png)
+
+
 
 
 
