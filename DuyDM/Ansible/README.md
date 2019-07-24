@@ -1,3 +1,5 @@
+# Cùng một việc làm quá hai lần thì đó mà một điều không ổn.
+
 ## Ghi chép lại những gì đọc và thực hành về ansible
 
 ### A, Lý thuyết
