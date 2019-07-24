@@ -9,6 +9,7 @@
 - [3. Kiến trúc CEPH](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/ly-thuyet/docs/3.kien-truc-trong-ceph.md)
 
 - [4. Trạng thái của Placement group](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/ly-thuyet/docs/4.placement-group-states.md)
+
 - [5. Crushmap trong CEPH](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/ly-thuyet/docs/5.crushmap-trong-ceph.md)
 
 ### B, LAB
@@ -28,3 +29,7 @@
 - [7. Add/remove một host trong ceph cluster](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/thuc-hanh/docs/7.remove-add-node-out-cluster.md)
 
 - [8. Chuyển OSD của node lỗi sang node mới](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/thuc-hanh/docs/8.move-osd-node-fail-to-new-node.md)
+
+- [9. Add thêm hoặc remove thêm node mon, mgr](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/thuc-hanh/docs/9.add-remove-service-mon-mgr.md)
+
+- [10. Set flag trong CEPH Cluster trong bảo trì hệ thống](https://github.com/domanhduy/ghichep/blob/master/DuyDM/CEPH/thuc-hanh/docs/10.set-flag-ceph-cluster.md)
