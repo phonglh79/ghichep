@@ -4,7 +4,7 @@
 
 ### A, Lý thuyết
 
-- [1.](Tổng quan về Ansible: Giới thiệu, khái niệm, kiến trúc...)
+- [1.Tổng quan về Ansible: Giới thiệu, khái niệm, kiến trúc...](https://github.com/domanhduy/ghichep/blob/master/DuyDM/Ansible/docs/1.tong-quan-ve-ansible.md)
 - [2.]()
 - [3.]()
 
