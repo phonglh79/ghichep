@@ -12,11 +12,11 @@ ansible-playbook lamp.yml
 http://ip-server/info.php
 ```
 
-![](../images/img-play-books/Screenshot_286.png)
+![](../img-play-books/Screenshot_286.png)
 
 ```
 http://ip-server
 ```
 
-![](../images/img-play-books/Screenshot_287.png)
+![](../img-play-books/Screenshot_287.png)
 
