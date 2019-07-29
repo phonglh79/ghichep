@@ -1,0 +1,106 @@
+---
+- name: install-lamp-CentOS
+  hosts: "node"
+  tasks:
+    - name: Disable SELinux
+      selinux:
+        state: disabled
+    - name: Install epel-release
+      shell: "yum install epel-release -y"
+      when:
+        - ansible_facts['distribution'] == "CentOS"
+        - ansible_facts['distribution_major_version'] == "7"
+    - name: update
+      shell: "yum update -y"
+      when:
+        - ansible_facts['distribution'] == "CentOS"
+        - ansible_facts['distribution_major_version'] == "7"
+        
+# Install apache
+     
+    - name: Install apache packages 
+      yum:
+        name: httpd
+        state: present
+      when:
+        - ansible_facts['distribution'] == "CentOS"
+        - ansible_facts['distribution_major_version'] == "7"
+    - name: start httpd
+      service:
+        name: httpd
+        state: started
+    - name: enable httpd
+      service: 
+        name: httpd
+        enabled: yes
+    - name: open port 80
+      firewalld:
+        port: 80/tcp
+        permanent: yes
+        state: enabled
+    - name: backup file index
+      shell: "mv /usr/share/httpd/noindex/index.html /usr/share/httpd/noindex/index.html.bak"
+      
+    - name: add file index.html
+      template:
+        src: index.html
+        dest: /usr/share/httpd/noindex/ 
+    - name: restart firewalld
+      service: 
+        name: firewalld
+        state: restarted
+# Install php mariadb
+    - name: Install mariadb
+      yum:
+        name: "{{ mariadb }}"
+      vars:
+        mariadb:
+        - mariadb-server 
+        - mariadb
+      when:
+        - ansible_facts['distribution'] == "CentOS"
+        - ansible_facts['distribution_major_version'] == "7"  
+    - name: start mariadb
+      service:
+        name: mariadb
+        state: started
+    - name: enable mariadb
+      service: 
+        name: mariadb
+        enabled: yes
+    - name: open port 3306
+      firewalld:
+        port: 3306/tcp
+        permanent: yes
+        state: enabled
+    - name: restart firewalld
+      service: 
+        name: firewalld
+        state: restarted
+        
+# Install php
+    - name: Install php
+      yum:
+        name: "{{ php }}"
+      vars:
+        php:
+        - php 
+        - php-mysql
+      when:
+        - ansible_facts['distribution'] == "CentOS"
+        - ansible_facts['distribution_major_version'] == "7"  
+    - name: start httpd
+      service:
+        name: httpd
+        state: restarted 
+
+    - name: add file info
+      template:
+        src: info.php
+        dest: /var/www/html/      
+
+
+
+####################################################################################
+# ansible-playbook lamp.yml                                                        #
+####################################################################################
