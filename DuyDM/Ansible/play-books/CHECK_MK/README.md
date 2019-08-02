@@ -1,4 +1,4 @@
-## Run play-books CHECK_SERVER
+## Run play-books CHECKMK_SERVER
 
 ```
 ansible-playbook install-checkmk-c7.yml --extra-vars '{"omd_name":"admin","pass_cmkadmin":"123456aA"}'
