@@ -1,0 +1,101 @@
+---
+- name: install-Grafana6-CentOS7
+  hosts: "node"
+  tasks:
+    - name: Disable SELinux
+      selinux:
+        state: disabled
+    - name: update
+      shell: "yum update -y"
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+## Package requiment
+    - name: Package requiment
+      yum:
+        name: "{{ package }}"
+      vars:
+        package:
+        - epel-release
+        - wget 
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+      
+#Get && installation Grafana6
+
+    - name: Download rpm grafana 6.2
+      get_url:
+        url: https://dl.grafana.com/oss/release/grafana-6.2.5-1.x86_64.rpm 
+        dest: /root      
+    - name: Install rpm grafana-6.2
+      shell: "sudo yum localinstall -y grafana-6.2.5-1.x86_64.rpm"
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+      
+#Open port firewalld
+    - name: open port 80-443-3000
+      firewalld:
+        port: "{{ item }}"
+        permanent: yes
+        state: enabled
+      loop:
+        - 80/tcp
+        - 443/tcp
+        - 3000/tcp 
+#Restart && enable service
+    - name: enable grafana - firewalld
+      service: 
+        name: "{{ item }}"
+        enabled: yes
+      loop:
+        - grafana-server
+        - firewalld
+        
+    - name: restart grafana - firewalld
+      service: 
+        name: "{{ item }}"
+        state: restarted
+      loop:
+        - grafana-server
+        - firewalld
+
+#Change pass admin
+    - name: Change pass admin grafana
+      shell: "grafana-cli --homepath /usr/share/grafana admin reset-admin-password {{ pass_admin }}"
+
+#Add datarource grafana
+    - name: Add datarource graphite
+      grafana_datasource:
+        name: "graphite"
+        grafana_url: "http://localhost:3000"
+        grafana_user: "admin"
+        grafana_password: "{{ pass_admin }}"
+        org_id: "1"
+        ds_type: "graphite"
+        ds_url: "http://localhost"
+  
+#Copy json to client
+
+    - name: Copy json to client
+      copy:
+        src: /etc/ansible/roles/grafana/{{ item }}
+        dest: /root
+        mode: 0755
+        owner: root
+        group: root
+      loop:
+        - mysql_export.json
+
+##Import dashboard grafana
+
+    - name: Import Grafana dashboard
+      grafana_dashboard:
+        grafana_url: "http://localhost:3000"
+        grafana_user: "admin"
+        grafana_password: "{{ pass_admin }}"
+        state: present
+        overwrite: yes
+        path: /root/{{ item }}
+      loop:
+        - mysql_export.json
+        
+####################################################################################
+#ansible-playbook install-grafana62-c7.yml --extra-vars '{"pass_admin":"123456aA"}'#
+####################################################################################
