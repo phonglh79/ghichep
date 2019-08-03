@@ -421,6 +421,14 @@ systemctl restart openstack-nova-api.service openstack-nova-scheduler.service op
 
 Đứng trên node CTL region 1
 
+```
+openstack --debug server list --os-region-name RegionTwo
+```
+
+```
+openstack compute service list --os-region-name RegionTwo
+```
+
 ![](../images/img-multipe-region/Screenshot_131.png)
 
 - Thực hiện trên node Compute thuộc region 2 10.10.10.120
