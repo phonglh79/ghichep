@@ -10,7 +10,7 @@ ansible-playbook install-checkmk-c7.yml --extra-vars '{"omd_name":"admin","pass_
 ## Check 
 
 ```
-http://ip-server/
+http://ip-server/site-name
 ```
 
 ![](../img-play-books/Screenshot_346.png)
