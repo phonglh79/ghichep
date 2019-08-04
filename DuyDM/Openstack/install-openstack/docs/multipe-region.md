@@ -543,7 +543,7 @@ user_domain_name = Default
 auth_url = http://10.10.10.117:5000/v3
 username = placement
 password = Welcome123
-region_name = RegionTwo
+#region_name = RegionTwo
 [quota]
 [rdp]
 [remote_debug]
