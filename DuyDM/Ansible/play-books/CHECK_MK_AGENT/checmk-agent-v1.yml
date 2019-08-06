@@ -1,0 +1,68 @@
+---
+- name: install-Agent-Check-MK-CentOS7
+  hosts: "node1"
+  tasks:
+    - name: Disable SELinux
+      selinux:
+        state: disabled
+    - name: update
+      shell: "yum update -y"
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+## Package requiment
+    - name: Package requiment
+      yum:
+        name: "{{ package }}"
+      vars:
+        package:
+        - epel-release
+        - wget 
+        - xinetd
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+#Get && installation Agent Check_MK
+    - name: Download rpm agent check_mk 1.5 tu check_mk server
+      get_url:
+        url: "{{ url_agent_monitoring }}"
+        dest: /root      
+    - name: Install rpm agent check_mk 1.5
+      shell: "rpm -ivh check-mk-agent-*"
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+# Edit config
+
+    - name: backup config check_mk
+      shell: "cp /etc/xinetd.d/check_mk /etc/xinetd.d/check_mk.bk"
+    - name: edit config check_mk
+      shell: "sed -i 's/#only_from      = 127.0.0.1 10.0.20.1 10.0.20.2/only_from      = '{{ ip_checkmk_server }}'/g'  /etc/xinetd.d/check_mk"
+
+#Open port firewalld
+    - name: open port 6556
+      firewalld:
+        port: "{{ item }}"
+        permanent: yes
+        state: enabled
+      loop:
+        - 6556/tcp 
+        
+#Restart && enable service
+    - name: enable xinetd
+      service: 
+        name: "{{ item }}"
+        enabled: yes
+      loop:
+        - xinetd
+        - firewalld
+        
+    - name: restart xinetd - firewalld
+      service: 
+        name: "{{ item }}"
+        state: restarted
+      loop:
+        - xinetd
+        - firewalld
+      
+##########################################################################################################
+#ansible-playbook checmk-agent.yml --extra-vars '{"url_agent_monitoring":"http://10.10.10.152/admin/check_mk/agents/check-mk-agent-1.5.0p2-1.noarch.rpm","ip_checkmk_server":"10.10.10.152"}'#
+##########################################################################################################
+
