@@ -18,6 +18,8 @@ Mô hình triển khai gồm
 + 01 zabbix server (192.168.90.110)<br>
 + 01 grafana server(192.168.90.111)<br>
 
+![](../images/img-ceph-zabbix/topo.png)
+
 <a name="planning"></a>
 ## 2. IP Planning
 
