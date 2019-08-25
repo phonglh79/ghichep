@@ -64,6 +64,8 @@ ceph zabbix config-set zabbix_host 192.168.90.110
 ceph zabbix config-set identifier CEPH_01
 ```
 
+**Lưu ý**: Tên định danh `CEPH_01` phải trùng với tên `Host name` khi add host trên zabbix.
+
 + Set zabbix_sender
 
 Lấy đường dẫn
