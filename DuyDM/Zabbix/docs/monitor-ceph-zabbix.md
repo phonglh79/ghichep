@@ -210,5 +210,24 @@ URL : http://192.168.90.110/zabbix/api_jsonrpc.php
 
 ![](../images/img-ceph-zabbix/Screenshot_381.png)
 
-+ Download json dashboard basic `ceph-zabbix-grafana` mẫu <a href="https://github.com/domanhduy/ghichep/blob/master/DuyDM/Zabbix/scripts/zabbix-ceph/zabbix_template.xml" target="_blank">tại đây</a> (có thể tự tạo dashboard mới tùy theo yêu cầu monitor).
++ Download json dashboard basic `ceph-zabbix-grafana` mẫu <a href="https://github.com/domanhduy/ghichep/blob/master/DuyDM/Zabbix/scripts/zabbix-ceph/CEPH%20I_O%20Bandwidth-1557730729910.json" target="_blank">tại đây</a> (có thể tự tạo dashboard mới tùy theo yêu cầu monitor).
+
++ Import dashboard
+
+![](../images/img-ceph-zabbix/Screenshot_382.png)
+
+**Lưu ý**: Edit datasource về đúng địa chỉ IP theo hệ thống của bạn.
+
+![](../images/img-ceph-zabbix/Screenshot_383.png)
+
+
+=> Kết quả grafana monitor IOPS, I/O bandwidth cụm CEPH
+
+![](../images/img-ceph-zabbix/Screenshot_384.png)
+
+### Link tham khảo
+
+https://blog.csdn.net/signmem/article/details/78667569
+
+http://kb.nhanhoa.com/display/NHKB01/Monitor+CEPH+with+ZABBIX
 
