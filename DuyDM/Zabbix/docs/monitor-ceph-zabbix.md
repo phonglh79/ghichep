@@ -94,7 +94,7 @@ ceph zabbix config-show
 ![](../images/img-ceph-zabbix/Screenshot_366.png)
 
 
-<a name="nodezabbix"></a>
+<a name="test"></a>
 ## 4. Thao tác trên node zabbix
 
 + Import zabbix_temaplte.xml
@@ -187,4 +187,28 @@ ceph zabbix send
 
 ![](../images/img-ceph-zabbix/Screenshot_377.png)
 
+<a name="grafana"></a>
+## 6. Import graph grafana
+
++ Enable datasource zabbix-grafana
+
+```
+grafana-cli plugins install alexanderzobnin-zabbix-app
+```
+
+![](../images/img-ceph-zabbix/Screenshot_378.png)
+
+![](../images/img-ceph-zabbix/Screenshot_379.png)
+
++ Connet zabbix - grafana
+
+```
+URL : http://192.168.90.110/zabbix/api_jsonrpc.php
+```
+
+![](../images/img-ceph-zabbix/Screenshot_380.png)
+
+![](../images/img-ceph-zabbix/Screenshot_381.png)
+
++ Download json dashboard basic `ceph-zabbix-grafana` mẫu <a href="https://github.com/domanhduy/ghichep/blob/master/DuyDM/Zabbix/scripts/zabbix-ceph/zabbix_template.xml" target="_blank">tại đây</a> (có thể tự tạo dashboard mới tùy theo yêu cầu monitor).
 
