@@ -16,8 +16,4 @@ sed -i 's/#only_from      = 127.0.0.1 10.0.20.1 10.0.20.2/only_from      = '$ips
 /etc/init.d/xinetd restart
 /etc/init.d/xinetd status
 
-iptables -I INPUT -p tcp --dport 6556 -j ACCEPT
-service iptables save
-service iptables restart
-
 echo "Cai dat agent check_mk Ok"
