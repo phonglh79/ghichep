@@ -7,9 +7,9 @@ old_passAdminNew="9TtwZBSm"
 old_passDbZabbix="9TtwZBSm"
 userMysql="root"
 
-new_passMysql="DaCwdJ96"
-new_passAdminNew="DaCwdJ96"
-new_passDbZabbix="DaCwdJ96"
+new_passMysql=$1
+new_passAdminNew=$2
+new_passDbZabbix=$3
 # Change pass root mysql
 
 mysqladmin --user=root --password=$old_passMysql password $new_passMysql
