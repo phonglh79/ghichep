@@ -24,6 +24,7 @@ EOF
 
 mysqladmin --user=zabbix_user --password=$old_passDbZabbix password $new_passDbZabbix
 sed -i "s/DBPassword=$old_passDbZabbix/DBPassword=$new_passDbZabbix/g" /etc/zabbix/zabbix_server.conf
+sed -i "s|\$DB\['PASSWORD'\] = '$old_passDbZabbix'\;|\$DB\['PASSWORD'\] = '$new_passDbZabbix'\;|g" zabbix.conf.php
 
 # Change pass root Admin
 

@@ -19,6 +19,8 @@ mysqladmin --user=root --password=$old_passMysql password $new_passMysql
 mysqladmin --user=zabbix_user --password=$old_passDbZabbix password $new_passDbZabbix
 
 sed -i "s/DBPassword=$old_passDbZabbix/DBPassword=$new_passDbZabbix/g" /etc/zabbix/zabbix_server.conf
+sed -i "s/$DB['PASSWORD'] = '9TtwZBSm';/$DB['PASSWORD'] = '$new_passDbZabbix';/g" /etc/zabbix/web/zabbix.conf.php
+
 
 # Change pass root Admin
 
@@ -33,3 +35,4 @@ systemctl restart zabbix-server
 systemctl restart httpd
 systemctl restart mariadb
 
+mysqladmin --user=zabbix_user --password=DbZabbix12password 9TtwZBSm
