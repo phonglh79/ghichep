@@ -20,7 +20,7 @@ mysqladmin --user=root --password=$old_passMysql password $new_passMysql
 
 
 cat << EOF |mysql -u$userMysql -p$new_passMysql
-grant all privileges on zabbix_db.* to zabbix_user@localhost identified by 'DbZabbix';
+grant all privileges on zabbix_db.* to zabbix_user@localhost identified by '$new_passDbZabbix';
 flush privileges;
 exit
 EOF
