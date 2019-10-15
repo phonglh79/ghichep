@@ -16,7 +16,14 @@ mysqladmin --user=root --password=$old_passMysql password $new_passMysql
 
 # Change pass Zabbix_user
 
-mysqladmin --user=zabbix_user --password=$old_passDbZabbix password $new_passDbZabbix
+#mysqladmin --user=zabbix_user --password=$old_passDbZabbix password $new_passDbZabbix
+
+
+cat << EOF |mysql -u$userMysql -p$new_passMysql
+grant all privileges on zabbix_db.* to zabbix_user@localhost identified by 'DbZabbix';
+flush privileges;
+exit
+EOF
 
 sed -i "s/DBPassword=$old_passDbZabbix/DBPassword=$new_passDbZabbix/g" /etc/zabbix/zabbix_server.conf
 
