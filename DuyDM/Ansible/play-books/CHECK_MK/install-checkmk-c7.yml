@@ -1,0 +1,81 @@
+---
+- name: install-Check-MK-CentOS7
+  hosts: "node"
+  tasks:
+    - name: Disable SELinux
+      selinux:
+        state: disabled
+    - name: update
+      shell: "yum update -y"
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+## Package requiment
+    - name: Package requiment
+      yum:
+        name: "{{ package }}"
+      vars:
+        package:
+        - epel-release
+        - wget 
+        - xinetd
+        - openssl
+        - python-pip
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"  
+
+#Install passlib
+    - name: update
+      shell: "pip install passlib"
+      
+#Get && installation Check_MK
+    - name: Download rpm check_mk 1.5
+      get_url:
+        url: https://mathias-kettner.de/support/1.5.0p2/check-mk-raw-1.5.0p2-el7-38.x86_64.rpm
+        dest: /root      
+    - name: Install rpm check_mk 1.5
+      shell: "yum install -y check-mk-raw-1.5.0p2-el7-38.x86_64.rpm"
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+      
+#Create - Start OMD
+    - name: Create OMD
+      shell: "omd create {{ omd_name }}" 
+    - name: Start OMD
+      shell: "omd start {{ omd_name }}"
+      
+#Open port firewalld
+    - name: open port 80-443-6556
+      firewalld:
+        port: "{{ item }}"
+        permanent: yes
+        state: enabled
+      loop:
+        - 80/tcp
+        - 443/tcp
+        - 6556/tcp     
+
+#Restart && enable service
+    - name: enable xinetd - firewalld
+      service: 
+        name: "{{ item }}"
+        enabled: yes
+      loop:
+        - xinetd
+        - firewalld
+        
+    - name: restart xinetd - firewalld
+      service: 
+        name: "{{ item }}"
+        state: restarted
+      loop:
+        - xinetd
+        - firewalld
+        
+## Change pass_cmkadmin
+    - htpasswd:
+        path: /omd/sites/{{ omd_name }}/etc/htpasswd
+        name: cmkadmin
+        password: "{{ pass_cmkadmin }}"
+ 
+########################################################################################################
+#ansible-playbook install-checkmk-c7.yml --extra-vars '{"omd_name":"admin","pass_cmkadmin":"123456aA"}'#
+########################################################################################################  
+
